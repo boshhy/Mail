@@ -15,6 +15,7 @@ function compose_email() {
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#display_email').style.display = 'none';
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -35,9 +36,12 @@ function compose_email() {
         body: body
       })
     })
+      // This is broken TODO: fix
       .then(response => response.json())
       .then(result => {
-        console.log(result);
+
+        load_mailbox('sent')
+
       });
   }
 }
@@ -47,7 +51,55 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#display_email').style.display = 'none';
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+
+  fetch('/emails/' + mailbox)
+    .then(response => response.json())
+    .then(email => {
+      // Print email
+      console.log(email);
+      email.forEach((email) => {
+        const div = document.createElement('div');
+        sender = email["sender"];
+        recipients = email['recipients'];
+        subject = email['subject'];
+        time_sent = email['timestamp'];
+        div.innerHTML = 'Sender: ' + sender + ' --- recipients: ' + recipients + ' --- Subject: ' + subject + ' --- Date: ' + time_sent;
+        div.onclick = () => { display_email(email['id']) }
+        div.style.border = '1px solid black';
+        div.style.margin = '8px';
+        document.querySelector('#emails-view').append(div);
+      })
+    });
+}
+
+
+function display_email(id) {
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  //document.querySelector('#items').style.display = 'none';
+  document.querySelector('#display_email').style.display = 'block';
+
+  document.querySelector('#display_email').innerHTML = '';
+
+  fetch('/emails/' + id)
+    .then(response => response.json())
+    .then(email => {
+      // Print email
+      console.log(email);
+      sender = email.sender;
+      recipients = email.recipients;
+      subject = email.subject;
+      timesent = email.time;
+      body = email.body;
+      const div = document.createElement('div');
+      div.innerHTML = 'email shoul be displayed here';
+      document.querySelector('#display_email').append(div);
+
+
+      // ... do something else with email ...
+    });
 }
