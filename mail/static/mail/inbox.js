@@ -49,6 +49,9 @@ function load_mailbox(mailbox) {
         if (email['read'] === true) {
           div.style.backgroundColor = "#D3D3D3";
         }
+        else {
+          div.style.backgroundColor = "#ffffff"
+        }
         div.addEventListener("mouseover", () => {
           div.style.cursor = 'pointer';
           div.style.backgroundColor = '#afcfee';
@@ -72,9 +75,9 @@ function load_mailbox(mailbox) {
         time_sent = email['timestamp'];
         div.onclick = () => { display_email(email['id'], mailbox) }
         div.style.border = '1px solid black';
-        div.style.margin = '8px';
+        div.style.margin = '6px';
         div.style.padding = '10px';
-        div.style.borderRadius = '16px';
+        div.style.borderRadius = '12px';
         div.innerHTML = `<span style="width: 250px;
                     margin-left: 8px;
                     display: inline-block;
@@ -131,7 +134,7 @@ function display_email(id, mailbox) {
           <div style="margin: 8px;">
               <span style="width: 64px; display: inline-block; vertical-align: top;"><b>Email:</b></span>
               <textarea style="width: 90%; height: 50vh" disabled placeholder="${body}"></textarea>
-          </div><br>
+          </div>
           `;
       document.querySelector('#display_email').append(div);
 
@@ -141,7 +144,8 @@ function display_email(id, mailbox) {
         button_reply.addEventListener('click', function () {
           reply_email(email);
         });
-        button_reply.style.backgroundColor = '#808080';
+        button_reply.className = "btn btn-primary";
+        button_reply.style.marginLeft = '74px';
 
         document.querySelector('#display_email').append(button_reply);
 
@@ -161,6 +165,9 @@ function display_email(id, mailbox) {
             })
             .catch(error => { console.log('Error:', error) });
         })
+        button_archive.className = "btn btn-primary";
+        button_archive.style.marginLeft = '8px';
+
         document.querySelector('#display_email').append(button_archive);
       }
 
@@ -179,6 +186,8 @@ function display_email(id, mailbox) {
             })
             .catch(error => { console.log('Error:', error) });
         })
+        button_unarchive.className = "btn btn-primary";
+        button_unarchive.style.marginLeft = '74px';
         document.querySelector('#display_email').append(button_unarchive);
       }
     });
@@ -218,11 +227,8 @@ function submit_form() {
       body: body
     })
   })
-    // This is broken TODO: fix
     .then(response => response.json())
-    .then(result => {
-
+    .then(() => {
       load_mailbox('sent')
-
     });
 }
