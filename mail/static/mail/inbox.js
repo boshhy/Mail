@@ -23,11 +23,10 @@ function compose_email() {
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
   document.querySelector('#compose-body').value = '';
+  document.querySelector("#warning").innerHTML = '';
 
   // When a user submites the email form go to submit_form to handle request
-  document.querySelector('#compose-form').onsubmit = () => {
-    submit_form();
-  }
+  document.querySelector('#compose-form').addEventListener('submit', submit_form);
 }
 
 
@@ -241,6 +240,7 @@ function reply_email(email) {
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
   document.querySelector('#display_email').style.display = 'none';
+  document.querySelector("#warning").innerHTML = '';
 
   // Get the values of the email that was passed in and used them
   // to prefill the value of the compose-email values
@@ -258,11 +258,13 @@ function reply_email(email) {
   document.querySelector('#compose-form').onsubmit = () => {
     submit_form();
   }
+  return false;
 }
 
 
 // This will be used to get the values of the form and send email
-function submit_form() {
+function submit_form(event) {
+  event.preventDefault();
   // Get all values of the form and save them into thier own variables
   const recipients = document.querySelector('#compose-recipients').value;
   const subject = document.querySelector('#compose-subject').value;
@@ -277,10 +279,23 @@ function submit_form() {
       body: body
     })
   })
-    .then(response => response.json())
-    // After email has been posted to users database then
-    // redirect user to the 'sent' inbox
-    .then(() => {
-      load_mailbox('sent')
+    // Take the response and turn it into a json file
+    .then(response => {
+      return response.json()
+    }
+    )
+    // Take the json file and see if an error occured
+    .then(result => {
+      if (result['error']) {
+        document.querySelector("#warning").innerHTML = '<div class="alert alert-danger">' + result['error'] + '</div>';
+      }
+      // if not error go to the sent mailbox
+      else {
+        load_mailbox('sent');
+      }
+    })
+    .catch(error => {
+      console.log("catch");
+      console.log(error);
     });
 }
